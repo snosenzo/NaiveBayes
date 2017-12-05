@@ -36,6 +36,11 @@ public class Main {
             t.trainProb();
             System.out.println(t.getProbabilityTable());
         }
+
+        for(TrainedSet t: trainedSets) {
+            t.testData();
+//            System.out.println(t.getProbabilityTable());
+        }
     }
 
     public static void populateGroups(Scanner inScan) {
@@ -88,10 +93,6 @@ public class Main {
             elementAverages[i] = elementAverages[i] / ((double) numElements);
         }
     }
-
-
-
-
 
     private static class TrainedSet {
         private int testSetIndex;
@@ -187,11 +188,59 @@ public class Main {
             return s.toString();
         }
 
-
-
         public String getSampleInfo() {
             return numPosTrainSamples + "\t\t\t" + numNegTrainSamples + "\t\t\t" + numPosDevSamples + "\t\t\t" + numNegDevSamples;
         }
 
+        public void testData() {
+            double featureProductSpam = 1;
+            double featureProductNotSpam = 1;
+            int falsePos = 0;
+            int truePos = 0;
+            int falseNeg = 0;
+            int trueNeg = 0;
+            double[][] elementList = groups[testSetIndex];
+            for(int i = 0; i < elementList.length; i++) {
+                double[] element = elementList[i];
+                if(element[0] == -1) {
+                    break;
+                }
+                double[][] probLoader = new double[element.length][2];
+
+                boolean isSpam = element[element.length-1] == 1 ? true : false;
+                for(int j = 0; j < element.length; j++) {
+                    if(element[j]<=elementAverages[j]) {
+                        probLoader[j][0] = featureProb[j][0];
+                        probLoader[j][1] = featureProb[j][2];
+                    } else {
+                        probLoader[j][0] = featureProb[j][1];
+                        probLoader[j][1] = featureProb[j][3];
+                    }
+                }
+                double yPredSpam = 1;
+                double yPredNotSpam = 1;
+                for(int j = 0; j < probLoader.length - 1; j++) {
+
+                    yPredSpam *= probLoader[j][0];
+                    yPredNotSpam *= probLoader[j][1];
+
+                }
+
+                yPredSpam *= ( (double) numPosTrainSamples / numTrainSamples);
+                yPredNotSpam *= ( (double) numNegTrainSamples / numTrainSamples);
+
+                if(yPredSpam > yPredNotSpam) {
+                    truePos += isSpam ? 1 : 0;
+                    falsePos += !isSpam ? 1 : 0;
+                } else {
+                    trueNeg += !isSpam ? 1 : 0;
+                    falseNeg += isSpam ? 1 : 0;
+                }
+            }
+
+            System.out.print("truePos: " + truePos + "\t FalsePos: " + falsePos);
+            System.out.println("\t trueNeg: " + trueNeg + "\t FalseNeg: " + falseNeg);
+
+        }
     }
 }
