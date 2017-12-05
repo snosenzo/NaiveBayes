@@ -166,9 +166,9 @@ public class Main {
                 featureGivenSpam[i] = featureGivenSpam[i] / ((double) numPosTrainSamples);
                 featureGivenNotSpam[i] = featureGivenNotSpam[i] / ((double) numNegTrainSamples);
                 featureProb[i][0] = featureGivenSpam[i];
-                featureProb[i][1] = 1 - featureProb[i][2];
+                featureProb[i][1] = 1 - featureProb[i][0];
                 featureProb[i][2] = featureGivenNotSpam[i];
-                featureProb[i][3] = 1- featureProb[i][2];
+                featureProb[i][3] = 1 - featureProb[i][2];
             }
             for(int i = 0 ; i < featureProb.length; i++) {
                 for(int j= 0; j < featureProb[i].length; j++) {
@@ -180,10 +180,14 @@ public class Main {
 
         public String getProbabilityTable() {
             StringBuilder s = new StringBuilder();
-            for(int i = 0; i < featureProb.length; i++) {
-                for(int j = 0; j < 4; j++) {
+            for(int j = 0; j < 4; j++) {
+                for (int i = 0; i < featureProb.length; i++) {
                     s.append(featureProb[i][j] + ",");
+                    if(i == featureProb.length - 1) {
+                        s.deleteCharAt(s.length() -1);
+                    }
                 }
+                s.append("\n");
             }
             return s.toString();
         }
