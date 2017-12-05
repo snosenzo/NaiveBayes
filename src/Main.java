@@ -240,7 +240,7 @@ public class Main {
 
             System.out.print("truePos: " + truePos + "\t FalsePos: " + falsePos);
             System.out.println("\t trueNeg: " + trueNeg + "\t FalseNeg: " + falseNeg);
-
+            System.out.println("% Correct: " + (double) (truePos + trueNeg) / (truePos + trueNeg + falsePos + falseNeg));
         }
     }
 }
