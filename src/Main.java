@@ -12,6 +12,9 @@ public class Main {
     private static double[][][] groups = new double[5][921][58];
     private static double[][] trainedProb = new double[58][2];
     private static ArrayList<TrainedSet> trainedSets;
+
+
+
     public static void main(String[] args) throws IOException {
         if(args.length != 1) {
             System.out.println("Please enter a data file");
@@ -37,10 +40,28 @@ public class Main {
             System.out.println(t.getProbabilityTable());
         }
 
+        System.out.println("\nResults:\n");
+        double CORR = 0;
+        double FN = 0;
+        double FP = 0;
+        double ERR = 0;
+
         for(TrainedSet t: trainedSets) {
             t.testData();
-//            System.out.println(t.getProbabilityTable());
+            CORR += t.CORR;
+            FN += t.FN;
+            FP += t.FP;
+            ERR += t.ERR;
         }
+        CORR /= groups.length;
+        FN /= groups.length;
+        FP /= groups.length;
+        ERR /= groups.length;
+
+        System.out.println("Avg,\tFP: " + FP + ", FN: " + FN + ", ERR: " + ERR);
+
+
+
     }
 
     public static void populateGroups(Scanner inScan) {
@@ -103,6 +124,13 @@ public class Main {
         private int numNegDevSamples;
         private int numDevSamples;
         private double[][] featureProb;
+
+        private double TP;
+        private double FP;
+        private double TN;
+        private double FN;
+        private double ERR;
+        private double CORR;
 
         public TrainedSet(int testSetIndex) {
             this.testSetIndex = testSetIndex;
@@ -180,14 +208,16 @@ public class Main {
 
         public String getProbabilityTable() {
             StringBuilder s = new StringBuilder();
-            for(int j = 0; j < 4; j++) {
-                for (int i = 0; i < featureProb.length; i++) {
+
+            for (int i = 0; i < featureProb.length; i++) {
+                for(int j = 0; j < 4; j++) {
                     s.append(featureProb[i][j] + ",");
-                    if(i == featureProb.length - 1) {
-                        s.deleteCharAt(s.length() -1);
-                    }
+
                 }
-                s.append("\n");
+                if(i == featureProb.length - 1) {
+                    s.deleteCharAt(s.length() -1);
+                }
+//                s.append("\n");
             }
             return s.toString();
         }
@@ -241,10 +271,14 @@ public class Main {
                     falseNeg += isSpam ? 1 : 0;
                 }
             }
-
-            System.out.print("truePos: " + truePos + "\t FalsePos: " + falsePos);
-            System.out.println("\t trueNeg: " + trueNeg + "\t FalseNeg: " + falseNeg);
-            System.out.println("% Correct: " + (double) (truePos + trueNeg) / (truePos + trueNeg + falsePos + falseNeg));
+            FP = (double) falsePos / (trueNeg + falsePos);
+            FN = (double) falseNeg / (falseNeg + truePos);
+            ERR = (double) (falseNeg + falsePos) / (truePos + trueNeg + falsePos + falseNeg);
+//            System.out.print("truePos: " + truePos + "\t FalsePos: " + falsePos);
+//            System.out.println("\t trueNeg: " + trueNeg + "\t FalseNeg: " + falseNeg);
+//            System.out.println("% Correct: " + (double) (truePos + trueNeg) / (truePos + trueNeg + falsePos + falseNeg));
+            CORR = (double) (truePos + trueNeg) / (truePos + trueNeg + falsePos + falseNeg);
+            System.out.println("Fold " + (groups.length - testSetIndex) + ", FP: " + FP + ", FN: " + FN + ", ERR: " + ERR);
         }
     }
 }
