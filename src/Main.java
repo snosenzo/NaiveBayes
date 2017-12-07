@@ -34,7 +34,7 @@ public class Main {
             System.out.println((i+1) + "\t\t\t\t" + t.getSampleInfo());
             trainedSets.add(t);
         }
-
+        System.out.println("\n Probability Table: \n");
         for(TrainedSet t: trainedSets) {
             t.trainProb();
             System.out.println(t.getProbabilityTable());
