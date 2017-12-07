@@ -1,10 +1,12 @@
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class Main {
+
+public class NaiveBayes {
     private static double[] elementMins = new double[58];
     private static double[] elementMaxs = new double[58];
     private static double[] elementAverages = new double[58];
@@ -33,6 +35,7 @@ public class Main {
             TrainedSet t = new TrainedSet(groups.length - (i+1));
             System.out.println((i+1) + "\t\t\t\t" + t.getSampleInfo());
             trainedSets.add(t);
+            t.outputDevTrainFiles();
         }
         System.out.println("\n Probability Table: \n");
         for(TrainedSet t: trainedSets) {
@@ -163,6 +166,31 @@ public class Main {
             }
             numNegTrainSamples = numTrainSamples - numPosTrainSamples;
             numNegDevSamples = numDevSamples - numPosDevSamples;
+        }
+
+        public void outputDevTrainFiles() throws IOException {
+            PrintWriter pDev = new PrintWriter((groups.length - testSetIndex) + "_Dev.txt");
+            PrintWriter pTrain = new PrintWriter((groups.length - testSetIndex) + "_Train.txt");
+            for(int i = 0; i < groups.length; i++) {
+                for(int j = 0; j < groups[i].length; j++) {
+                    double[] element = groups[i][j];
+                    for(int k = 0; k < element.length; k++) {
+                        if(testSetIndex != i) { // training
+                            pTrain.print(element[k] + ",");
+                        } else { // dev
+                            pDev.print(element[k] + ",");
+                        }
+                    }
+                    if(testSetIndex != i ) {
+                        pTrain.print("\n");
+                    } else {
+                        pDev.print("\n");
+                    }
+                }
+            }
+            pTrain.close();
+            pDev.close();
+
         }
 
         public void trainProb() {
